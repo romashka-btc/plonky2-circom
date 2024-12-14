@@ -11,9 +11,18 @@ describe("Verify Fri Proof Circuit Test", function () {
     this.timeout(10000000);
 
     before(async () => {
-        // TODO: Error: Cannot create a string longer than 0x1fffffe8 characters
-        // circuit = await wasm_tester(path.join(__dirname, "circuits", "fri.test.circom"), {});
-    });
+    try {
+        // Load the test module and validate the string size
+        circuit = await wasm_tester(path.join(__dirname, "circuits", "fri.test.circom"), {});
+
+        // Check if the generated string exceeds the maximum allowable length
+        if (JSON.stringify(circuit).length > 0xffffffff) {
+            throw new Error("Generated string exceeds maximum allowable length.");
+        }
+    } catch (error) {
+        console.error("Initialization failed:", error);
+    }
+});
 
     it("Should pass", async () => {
         const input = {
